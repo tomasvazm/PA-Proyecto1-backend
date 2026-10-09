@@ -229,6 +229,34 @@ Estos endpoints requieren un token JWT válido y un rol `Administrador` o `Root`
 
 Aunque están protegidos, se recomienda ejecutarlos únicamente cuando sea necesario y no exponerlos como parte del flujo normal de producción. Antes de ejecutar seeds en Render deben configurarse sus variables de entorno y verificarse los datos iniciales.
 
+### Crear el administrador inicial en una base vacía
+
+Cuando una base remota ya tiene las migraciones aplicadas pero todavía no tiene usuarios, los endpoints de seeds no pueden utilizarse porque requieren autenticación. Para resolver el primer arranque existe un comando local controlado:
+
+```bash
+SEED_ADMIN_EMAIL=admin@example.com \
+SEED_ADMIN_PASSWORD='contraseña-secreta' \
+yarn bootstrap:admin
+```
+
+El comando crea el rol `Administrador` y el usuario indicado si no existen. Debe ejecutarse con las variables de conexión de la base destino cargadas en la misma terminal, como se describe para las migraciones. No publica un endpoint adicional y no ejecuta los demás seeds.
+
+Para no dejar la contraseña en el historial de la terminal, se recomienda cargarla de forma interactiva:
+
+```bash
+read -r -s -p "Contraseña del administrador: " SEED_ADMIN_PASSWORD
+printf '\n'
+export BOOTSTRAP_ADMIN_CONFIRM='remote'
+export SEED_ADMIN_PASSWORD
+export SEED_ADMIN_EMAIL='admin@example.com'
+yarn bootstrap:admin
+unset BOOTSTRAP_ADMIN_CONFIRM SEED_ADMIN_EMAIL SEED_ADMIN_PASSWORD
+```
+
+`BOOTSTRAP_ADMIN_CONFIRM=remote` es obligatorio para evitar ejecutar accidentalmente el comando contra la base local cargada desde `.env`.
+
+Después de crear el administrador, se puede iniciar sesión en `/api/auth/login` y ejecutar los seeds restantes desde sus endpoints protegidos, si se necesitan.
+
 ## Deuda técnica conocida
 
 Fuera del alcance de la validación de despliegue quedan:
