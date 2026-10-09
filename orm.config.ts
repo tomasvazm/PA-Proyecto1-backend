@@ -5,7 +5,7 @@ import { getDatabaseSsl } from './src/config/database-ssl';
 
 config({
   path: `.env`,
-  override: true,
+  override: false,
 });
 
 export default new DataSource({
