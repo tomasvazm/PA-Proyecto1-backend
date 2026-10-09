@@ -112,6 +112,7 @@ DB_PASSWORD=replace_me
 DB_DATABASE=proyecto
 DB_TYPE=mysql
 DB_SSL=false
+DB_SSL_CA=
 
 PORT=3000
 JWT_SECRET=replace_me
@@ -136,6 +137,20 @@ DEFAULT_USER_PASSWORD=replace_me
 ```
 
 El archivo `.env` contiene valores locales y no debe subirse al repositorio. La plantilla pública es `.env.example`.
+
+Para conectarse a Aiven u otro proveedor que requiera TLS, configura las variables de base de datos con los valores entregados por el proveedor:
+
+```env
+DB_HOST=host-del-proveedor
+DB_PORT=18843
+DB_USERNAME=usuario
+DB_PASSWORD=secreto
+DB_DATABASE=defaultdb
+DB_SSL=true
+DB_SSL_CA=certificado-CA
+```
+
+`DB_SSL_CA` es opcional cuando `DB_SSL=true`. Si el proveedor entrega un certificado CA, se recomienda configurarlo para validar explícitamente el servidor. El certificado puede almacenarse como secreto de entorno con saltos de línea reales o representados como `\n`. Nunca debe agregarse al repositorio.
 
 ---
 

@@ -27,6 +27,7 @@ import { EmpresaOperacionModule } from './modules/organizacion/empresa-operacion
 import { ClienteOperacionModule } from './modules/organizacion/cliente-operacion/cliente-operacion.module';
 import { ProductoOperacionModule } from './modules/gestion-productos/producto-operacion/producto-operacion.module';
 import { BusquedasModule } from './modules/gestion-documentos/busquedas/busquedas.module';
+import { getDatabaseSsl } from './config/database-ssl';
 
 @Module({
   imports: [
@@ -48,7 +49,7 @@ import { BusquedasModule } from './modules/gestion-documentos/busquedas/busqueda
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       // entities,
       synchronize: false,  
-      ssl: process.env.DB_SSL === 'true',
+      ssl: getDatabaseSsl(),
     }),
 
     MarcaModule,
