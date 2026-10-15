@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
@@ -7,7 +7,9 @@ import {
   IsNumber,
   IsString,
   Min,
+  ValidateNested,
 } from 'class-validator';
+import { PresentacionDto } from './presentacion.dto';
 /*
 Se Utiliza para la busqueda y llenado de la tabla
 */
@@ -127,6 +129,11 @@ export class GetProductoDto {
   @IsInt()
   @Min(0)
   cantidadPorPack: number;
+
+  @ApiPropertyOptional({ type: () => PresentacionDto, nullable: true })
+  @ValidateNested()
+  @Type(() => PresentacionDto)
+  presentacion: PresentacionDto | null;
 
   @IsString()
   codigoReferencia: string;

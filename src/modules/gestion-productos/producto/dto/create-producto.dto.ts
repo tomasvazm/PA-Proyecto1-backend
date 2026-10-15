@@ -1,4 +1,4 @@
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsString,
   IsNotEmpty,
@@ -11,8 +11,11 @@ import {
   IsEnum,
   IsPositive,
   Min,
+  IsDefined,
+  ValidateNested,
 } from 'class-validator';
 import { AlicuotaIva } from 'src/modules/organizacion/enums/alicuota-iva.enum';
+import { PresentacionDto } from './presentacion.dto';
 
 export class CreateProductoDto {
   @Transform(({ value }) => value.trim().toLowerCase())
@@ -97,6 +100,11 @@ export class CreateProductoDto {
   )
   @IsPositive({ message: 'La cantidad por pack debe ser mayor que cero.' })
   cantidadPorPack?: number;
+
+  @IsDefined({ message: 'La presentación es obligatoria.' })
+  @ValidateNested()
+  @Type(() => PresentacionDto)
+  presentacion: PresentacionDto;
 
   @IsOptional()
   @IsNumber()

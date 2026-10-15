@@ -1,5 +1,9 @@
 // domain/services/producto-intrinsic-validation.service.ts
 import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  MAX_CANTIDAD_PRESENTACION,
+  UnidadPresentacion,
+} from '../value-objects/presentacion';
 
 @Injectable()
 export class ProductoIntrinsicValidationService {
@@ -16,6 +20,11 @@ export class ProductoIntrinsicValidationService {
     stockMinimo?: number;
     utilizaPack?: boolean;
     cantidadPorPack?: number;
+    presentacion?: {
+      cantidad: number | null;
+      unidad: UnidadPresentacion | null;
+    } | null;
+    presentacionObligatoria?: boolean;
   }): void {
     this.validarDenominacion(datos.denominacion);
     this.validarIds(datos.marcaId, datos.lineaId);
@@ -23,6 +32,10 @@ export class ProductoIntrinsicValidationService {
     this.validarCantidad(datos.stock, 'El stock');
     this.validarCantidad(datos.stockMinimo, 'El stock mínimo');
     this.validarPack(datos.utilizaPack, datos.cantidadPorPack);
+    this.validarPresentacion(
+      datos.presentacion,
+      datos.presentacionObligatoria ?? false,
+    );
     
     if (datos.alicuotaIva !== undefined) {
       this.validarAlicuotaIva(datos.alicuotaIva);
@@ -97,6 +110,46 @@ export class ProductoIntrinsicValidationService {
     if (!Number.isFinite(alicuotaIva) || alicuotaIva < 0 || alicuotaIva > 100) {
       throw new BadRequestException(
         'La alícuota IVA debe estar entre 0 y 100.',
+      );
+    }
+  }
+
+  private validarPresentacion(
+    presentacion:
+      | {
+          cantidad: number | null;
+          unidad: UnidadPresentacion | null;
+        }
+      | null
+      | undefined,
+    obligatoria: boolean,
+  ): void {
+    const cantidad = presentacion?.cantidad ?? null;
+    const unidad = presentacion?.unidad ?? null;
+
+    if (cantidad === null && unidad === null) {
+      if (obligatoria) {
+        throw new BadRequestException('La presentación es obligatoria.');
+      }
+      return;
+    }
+
+    if (
+      cantidad === null ||
+      unidad === null ||
+      !Number.isFinite(cantidad) ||
+      cantidad <= 0 ||
+      cantidad > MAX_CANTIDAD_PRESENTACION ||
+      Number(cantidad.toFixed(3)) !== cantidad
+    ) {
+      throw new BadRequestException(
+        'La presentación debe incluir una cantidad mayor que cero, con hasta tres decimales y una unidad válida.',
+      );
+    }
+
+    if (!Object.values(UnidadPresentacion).includes(unidad)) {
+      throw new BadRequestException(
+        'La unidad debe ser ML, L, G, KG o UNIDADES.',
       );
     }
   }

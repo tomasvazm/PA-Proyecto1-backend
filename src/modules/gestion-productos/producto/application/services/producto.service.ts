@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -325,6 +326,8 @@ export class ProductoService {
       stockMinimo: dto.stockMinimo,
       utilizaPack: dto.utilizaPack,
       cantidadPorPack: dto.cantidadPorPack,
+      presentacion: dto.presentacion,
+      presentacionObligatoria: true,
     });
 
     // Validar unicidad (Infrastructure - DB)
@@ -381,6 +384,12 @@ export class ProductoService {
       throw new InternalServerErrorException('Producto en estado inválido');
     }
 
+    if (dto.presentacion === null) {
+      throw new BadRequestException(
+        'La presentación no se puede eliminar una vez asignada.',
+      );
+    }
+
     //  Validar datos intrínsecos
     this.intrinsicValidationService.validarDatosBasicos({
       denominacion: dto.denominacion ?? productoActual.denominacion,
@@ -392,6 +401,7 @@ export class ProductoService {
       stockMinimo: dto.stockMinimo ?? productoActual.stockMinimo,
       utilizaPack: dto.utilizaPack ?? productoActual.utilizaPack,
       cantidadPorPack: dto.cantidadPorPack ?? productoActual.cantidadPorPack ?? undefined,
+      presentacion: dto.presentacion ?? productoActual.presentacion,
 
     });
 

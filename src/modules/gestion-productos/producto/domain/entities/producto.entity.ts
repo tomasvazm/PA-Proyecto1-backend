@@ -8,6 +8,7 @@ import {
   Index,
   JoinColumn,
 } from 'typeorm';
+import { Presentacion } from '../value-objects/presentacion';
 import { Linea } from '../../../linea/domain/entities/linea.entity';
 import { Marca } from '../../../marca/domain/entities/marca.entity';
 import { AlicuotaIva } from 'src/modules/organizacion/enums/alicuota-iva.enum';
@@ -155,6 +156,10 @@ export class Producto {
 
   @Column({ type: 'int', nullable: true })
   cantidadPorPack: number | null;
+
+  @Column(() => Presentacion, { prefix: 'presentacion' })
+  presentacion: Presentacion | null;
+
 
   @Column({ type: 'text', nullable: true })
   imagen?: string;

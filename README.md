@@ -210,6 +210,23 @@ yarn migration:revert   # Revertir la última migración
 
 Las migraciones crean o modifican la estructura de la base de datos y quedan registradas en la tabla `migrations`. `synchronize` permanece desactivado para evitar cambios automáticos y no controlados en el esquema.
 
+### Presentación de productos
+
+Las altas de productos requieren una presentación estructurada:
+
+```json
+{
+  "presentacion": {
+    "cantidad": 1,
+    "unidad": "L"
+  }
+}
+```
+
+Las unidades permitidas son `ML`, `L`, `G`, `KG` y `UNIDADES`. La cantidad debe ser positiva, no superar `999999999.999` y admite hasta tres decimales. Los productos existentes conservan una presentación nula hasta que se actualicen; los campos heredados `utilizaPack` y `cantidadPorPack` se mantienen por compatibilidad.
+
+Antes de desplegar una versión que incluya este cambio, ejecutar `yarn migration:run` contra la base de datos destino para agregar las columnas de presentación.
+
 ## Seeds
 
 Los seeds insertan datos iniciales, como roles, el usuario administrador, provincias y datos de productos. No se ejecutan automáticamente al iniciar la aplicación.
