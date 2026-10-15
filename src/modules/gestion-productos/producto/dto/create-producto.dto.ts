@@ -9,6 +9,8 @@ import {
   IsNumber,
   IsInt,
   IsEnum,
+  IsPositive,
+  Min,
 } from 'class-validator';
 import { AlicuotaIva } from 'src/modules/organizacion/enums/alicuota-iva.enum';
 
@@ -51,11 +53,19 @@ export class CreateProductoDto {
   utilizaStockMinimo: boolean;
 
   @IsOptional()
-  @IsInt()
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false },
+    { message: 'El stock mínimo debe ser un número válido.' },
+  )
+  @Min(0, { message: 'El stock mínimo no puede ser negativo.' })
   stockMinimo?: number;
 
   @IsOptional()
-  @IsInt()
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false },
+    { message: 'El stock debe ser un número válido.' },
+  )
+  @Min(0, { message: 'El stock no puede ser negativo.' })
   stock?: number;
 
   @IsOptional()
@@ -81,7 +91,11 @@ export class CreateProductoDto {
   utilizaPack: boolean;
 
   @IsOptional()
-  @IsInt()
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false },
+    { message: 'La cantidad por pack debe ser un número válido.' },
+  )
+  @IsPositive({ message: 'La cantidad por pack debe ser mayor que cero.' })
   cantidadPorPack?: number;
 
   @IsOptional()
@@ -99,11 +113,18 @@ export class CreateProductoDto {
 
 
   @IsOptional()
-  @IsNumber()
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false },
+    { message: 'El porcentaje debe ser un número válido.' },
+  )
+  @Min(0, { message: 'El porcentaje no puede ser negativo.' })
   porcentaje?: number;
 
-  @IsOptional()
-  @IsNumber()
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false },
+    { message: 'El precio debe ser un número válido.' },
+  )
+  @IsPositive({ message: 'El precio debe ser mayor que cero.' })
   precio: number;
 
   createdAt?: Date;

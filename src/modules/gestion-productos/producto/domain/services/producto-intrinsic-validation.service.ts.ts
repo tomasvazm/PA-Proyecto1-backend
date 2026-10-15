@@ -11,17 +11,18 @@ export class ProductoIntrinsicValidationService {
     marcaId: number;
     lineaId: number;
     alicuotaIva?: number;
-    precioMayorista?: number;
-    precioCliente?: number;
-    precioOcasional?: number;
+    precio?: number;
+    stock?: number;
+    stockMinimo?: number;
+    utilizaPack?: boolean;
+    cantidadPorPack?: number;
   }): void {
     this.validarDenominacion(datos.denominacion);
     this.validarIds(datos.marcaId, datos.lineaId);
-    this.validarPrecios(
-      datos.precioMayorista,
-      datos.precioCliente,
-      datos.precioOcasional,
-    );
+    this.validarPrecio(datos.precio);
+    this.validarCantidad(datos.stock, 'El stock');
+    this.validarCantidad(datos.stockMinimo, 'El stock mínimo');
+    this.validarPack(datos.utilizaPack, datos.cantidadPorPack);
     
     if (datos.alicuotaIva !== undefined) {
       this.validarAlicuotaIva(datos.alicuotaIva);
@@ -32,9 +33,9 @@ export class ProductoIntrinsicValidationService {
     if (!denominacion || denominacion.trim().length === 0) {
       throw new BadRequestException('La denominación es obligatoria');
     }
-    if (denominacion.length > 200) {
+    if (denominacion.trim().length > 255) {
       throw new BadRequestException(
-        'La denominación no puede superar 200 caracteres',
+        'La denominación no puede superar 255 caracteres.',
       );
     }
   }
@@ -43,67 +44,59 @@ export class ProductoIntrinsicValidationService {
     marcaId: number,
     lineaId: number,
   ): void {
-    if (!marcaId || marcaId <= 0) {
-      throw new BadRequestException('Marca ID es requerido y debe ser válido');
+    if (!Number.isInteger(marcaId) || marcaId <= 0) {
+      throw new BadRequestException(
+        'La marca es obligatoria y debe ser un identificador válido.',
+      );
     }
-    if (!lineaId || lineaId <= 0) {
-      throw new BadRequestException('Línea ID es requerido y debe ser válido');
+    if (!Number.isInteger(lineaId) || lineaId <= 0) {
+      throw new BadRequestException(
+        'La línea es obligatoria y debe ser un identificador válido.',
+      );
     }
-
   }
 
-  /**
-   * Valida la jerarquía de precios: Mayorista <= Cliente <= Ocasional
-   */
-  private validarPrecios(
-    precioMayorista?: number,
-    precioCliente?: number,
-    precioOcasional?: number,
+  private validarPrecio(precio?: number): void {
+    if (precio === undefined) {
+      return;
+    }
+
+    if (!Number.isFinite(precio) || precio <= 0) {
+      throw new BadRequestException('El precio debe ser mayor que cero.');
+    }
+  }
+
+  private validarCantidad(cantidad: number | undefined, nombre: string): void {
+    if (cantidad === undefined) {
+      return;
+    }
+
+    if (!Number.isFinite(cantidad) || cantidad < 0) {
+      throw new BadRequestException(`${nombre} no puede ser negativo.`);
+    }
+  }
+
+  private validarPack(
+    utilizaPack: boolean | undefined,
+    cantidadPorPack: number | undefined,
   ): void {
-    if (precioMayorista !== undefined && precioMayorista < 0) {
+    if (utilizaPack && (cantidadPorPack === undefined || cantidadPorPack <= 0)) {
       throw new BadRequestException(
-        'El precio mayorista no puede ser negativo',
-      );
-    }
-    if (precioCliente !== undefined && precioCliente < 0) {
-      throw new BadRequestException('El precio cliente no puede ser negativo');
-    }
-    if (precioOcasional !== undefined && precioOcasional < 0) {
-      throw new BadRequestException(
-        'El precio ocasional no puede ser negativo',
+        'La cantidad por pack debe ser mayor que cero cuando el producto utiliza pack.',
       );
     }
 
-    // Validar jerarquía: Mayorista <= Cliente <= Ocasional
-    if (precioMayorista && precioCliente) {
-      if (precioMayorista > precioCliente) {
-        throw new BadRequestException(
-          'El precio Mayorista no puede superar el precio Cliente',
-        );
-      }
-    }
-
-    if (precioCliente && precioOcasional) {
-      if (precioCliente > precioOcasional) {
-        throw new BadRequestException(
-          'El precio Cliente no puede superar el precio Ocasional',
-        );
-      }
-    }
-
-    if (precioMayorista && precioOcasional) {
-      if (precioMayorista > precioOcasional) {
-        throw new BadRequestException(
-          'El precio Mayorista no puede superar el precio Ocasional',
-        );
-      }
+    if (!utilizaPack && cantidadPorPack !== undefined) {
+      throw new BadRequestException(
+        'No se puede informar una cantidad por pack si el producto no utiliza pack.',
+      );
     }
   }
 
   private validarAlicuotaIva(alicuotaIva: number): void {
-    if (alicuotaIva < 0 || alicuotaIva > 100) {
+    if (!Number.isFinite(alicuotaIva) || alicuotaIva < 0 || alicuotaIva > 100) {
       throw new BadRequestException(
-        'La alícuota IVA debe estar entre 0 y 100',
+        'La alícuota IVA debe estar entre 0 y 100.',
       );
     }
   }

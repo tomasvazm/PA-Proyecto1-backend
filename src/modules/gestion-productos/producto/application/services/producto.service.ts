@@ -320,6 +320,11 @@ export class ProductoService {
       marcaId: dto.marcaId,
       lineaId: dto.lineaId,
       alicuotaIva: dto.alicuotaIva,
+      precio: dto.precio,
+      stock: dto.stock,
+      stockMinimo: dto.stockMinimo,
+      utilizaPack: dto.utilizaPack,
+      cantidadPorPack: dto.cantidadPorPack,
     });
 
     // Validar unicidad (Infrastructure - DB)
@@ -382,6 +387,11 @@ export class ProductoService {
       marcaId: dto.marcaId ?? productoActual.marcaId,
       lineaId: dto.lineaId ?? productoActual.lineaId,
       alicuotaIva: dto.alicuotaIva ?? productoActual.alicuotaIva,
+      precio: dto.precio ?? productoActual.precio,
+      stock: dto.stock ?? productoActual.stock,
+      stockMinimo: dto.stockMinimo ?? productoActual.stockMinimo,
+      utilizaPack: dto.utilizaPack ?? productoActual.utilizaPack,
+      cantidadPorPack: dto.cantidadPorPack ?? productoActual.cantidadPorPack ?? undefined,
 
     });
 
