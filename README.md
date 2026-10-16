@@ -233,6 +233,12 @@ Una Línea puede asociarse a una SuperLínea existente al crearla o editarla med
 
 Antes de desplegar esta funcionalidad, ejecutar `yarn migration:run` contra la base de datos destino para crear `super_linea` y agregar la relación nullable a `linea`.
 
+### Denominación automática de productos
+
+Las altas nuevas usan `modoDenominacion: "AUTOMATICA"` si se omite el modo y generan el nombre con Marca, Línea y Presentación, en ese orden y separados por espacios; por ejemplo, `ACME GASEOSAS 1 L`. En modo `MANUAL`, `denominacion` es obligatoria. Los productos existentes quedan en modo `MANUAL` para conservar su nombre. En modo automático, al cambiar Marca, Línea o Presentación se recalcula la denominación; para editarla manualmente hay que cambiar el modo a `MANUAL`. Las respuestas de búsqueda y consulta incluyen `modoDenominacion`.
+
+Antes de desplegar esta funcionalidad, ejecutar `yarn migration:run` contra la base de datos destino para agregar `modoDenominacion`; los registros existentes reciben el valor `MANUAL`.
+
 ### Búsqueda avanzada de productos
 
 `GET /api/producto/search-by` admite los filtros opcionales `denominacion`, `lineaDenominacion` y `superLineaDenominacion`. Permiten coincidencias parciales e ignoran mayúsculas/minúsculas. Denominación, Línea y SuperLínea se combinan con AND; por ejemplo, `?denominacion=agua&superLineaDenominacion=bebidas` busca productos cuya denominación contenga «agua» y cuya SuperLínea contenga «bebidas». Los filtros por `lineaId` y `marcaId` continúan siendo exactos. Se conserva la lógica existente de los filtros por códigos, que se combinan entre sí y con la denominación mediante OR.

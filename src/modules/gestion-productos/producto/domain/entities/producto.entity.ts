@@ -19,6 +19,7 @@ import { MonetarioColumn } from 'src/modules/common/decorators/monetario-column.
 import { CantidadColumn } from 'src/modules/common/decorators/cantidad-column.decorator';
 import { PorcentajeColumn } from 'src/modules/common/decorators/porcentaje-column.decorator';
 import { Proveedor } from 'src/modules/organizacion/proveedor/domain/entities/proveedor.entity';
+import { ModoDenominacion } from '../enums/modo-denominacion.enum';
 
 @Entity('producto')
 export class Producto {
@@ -29,6 +30,13 @@ export class Producto {
   @ApiProperty()
   @Column({ type: 'text' })
   denominacion: string;
+
+  @Column({
+    type: 'varchar',
+    length: 10,
+    default: ModoDenominacion.MANUAL,
+  })
+  modoDenominacion: ModoDenominacion;
 
   @Index()
   @Column({ type: 'varchar', length: 255, nullable: true })

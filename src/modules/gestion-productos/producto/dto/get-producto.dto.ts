@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -10,6 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { PresentacionDto } from './presentacion.dto';
+import { ModoDenominacion } from '../domain/enums/modo-denominacion.enum';
 /*
 Se Utiliza para la busqueda y llenado de la tabla
 */
@@ -26,6 +28,10 @@ export class GetProductoDto {
   })
   @IsString()
   denominacion: string;
+
+  @ApiProperty({ enum: ModoDenominacion, enumName: 'ModoDenominacion' })
+  @IsEnum(ModoDenominacion)
+  modoDenominacion: ModoDenominacion;
 
   @ApiProperty({
     example: '1158 Caja de tornillos',

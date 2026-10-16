@@ -26,7 +26,9 @@ export class ProductoIntrinsicValidationService {
     } | null;
     presentacionObligatoria?: boolean;
   }): void {
-    this.validarDenominacion(datos.denominacion);
+    if (datos.denominacion !== undefined) {
+      this.validarDenominacion(datos.denominacion);
+    }
     this.validarIds(datos.marcaId, datos.lineaId);
     this.validarPrecio(datos.precio);
     this.validarCantidad(datos.stock, 'El stock');

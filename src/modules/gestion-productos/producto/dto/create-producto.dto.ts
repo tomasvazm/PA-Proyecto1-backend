@@ -13,15 +13,28 @@ import {
   Min,
   IsDefined,
   ValidateNested,
+  ValidateIf,
 } from 'class-validator';
 import { AlicuotaIva } from 'src/modules/organizacion/enums/alicuota-iva.enum';
 import { PresentacionDto } from './presentacion.dto';
+import { ModoDenominacion } from '../domain/enums/modo-denominacion.enum';
 
 export class CreateProductoDto {
-  @Transform(({ value }) => value.trim().toLowerCase())
-  @IsString({ message: 'La denominación debe ser una cadena de texto.' }) // Valida que sea string
-  @IsNotEmpty({ message: 'La denominación no puede estar vacía.' }) // Valida que no esté vacía
-  @MaxLength(255, { message: 'La denominación no puede estar vacía.' })
+  @ValidateIf(
+    (producto: CreateProductoDto) =>
+      producto.modoDenominacion === ModoDenominacion.MANUAL ||
+      producto.denominacion !== undefined,
+  )
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : value,
+  )
+  @IsString({ message: 'La denominación debe ser una cadena de texto.' })
+  @IsNotEmpty({
+    message: 'La denominación es obligatoria en modo manual.',
+  })
+  @MaxLength(255, {
+    message: 'La denominación no puede superar 255 caracteres.',
+  })
   /*  @Matches(/^[A-Za-z0-9 áéíóúÁÉÍÓÚñÑ.\-/]+$/, {
     message:
       'La denominación solo puede contener letras, números, espacios, puntos, guiones y barras.',
@@ -29,7 +42,13 @@ export class CreateProductoDto {
   @Matches(/^[\w áéíóúÁÉÍÓÚñÑ.\-/%]+$/, {
     message: 'La denominación contiene caracteres inválidos ',
   })
-  denominacion: string;
+  denominacion?: string;
+
+  @IsOptional()
+  @IsEnum(ModoDenominacion, {
+    message: 'El modo de denominación debe ser AUTOMATICA o MANUAL.',
+  })
+  modoDenominacion?: ModoDenominacion;
 
   @IsOptional()
   @IsString()
