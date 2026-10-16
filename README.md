@@ -233,6 +233,10 @@ Una Línea puede asociarse a una SuperLínea existente al crearla o editarla med
 
 Antes de desplegar esta funcionalidad, ejecutar `yarn migration:run` contra la base de datos destino para crear `super_linea` y agregar la relación nullable a `linea`.
 
+### Búsqueda avanzada de productos
+
+`GET /api/producto/search-by` admite los filtros opcionales `denominacion`, `lineaDenominacion` y `superLineaDenominacion`. Permiten coincidencias parciales e ignoran mayúsculas/minúsculas. Denominación, Línea y SuperLínea se combinan con AND; por ejemplo, `?denominacion=agua&superLineaDenominacion=bebidas` busca productos cuya denominación contenga «agua» y cuya SuperLínea contenga «bebidas». Los filtros por `lineaId` y `marcaId` continúan siendo exactos. Se conserva la lógica existente de los filtros por códigos, que se combinan entre sí y con la denominación mediante OR.
+
 ## Seeds
 
 Los seeds insertan datos iniciales, como roles, el usuario administrador, provincias y datos de productos. No se ejecutan automáticamente al iniciar la aplicación.

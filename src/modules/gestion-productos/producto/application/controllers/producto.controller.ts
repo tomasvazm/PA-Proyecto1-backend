@@ -115,6 +115,8 @@ export class ProductoController {
       codigoReferencia,
       marcaId,
       lineaId,
+      lineaDenominacion,
+      superLineaDenominacion,
       proveedorId,
       conStock,
       skip,
@@ -131,6 +133,8 @@ export class ProductoController {
       conStock,
       skip,
       take,
+      lineaDenominacion,
+      superLineaDenominacion,
     );
   }
 

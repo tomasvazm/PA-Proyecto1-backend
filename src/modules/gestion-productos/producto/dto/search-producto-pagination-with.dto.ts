@@ -7,6 +7,20 @@ export class SearchProductoPaginationWithDto {
   denominacion?: string;
 
   @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString({ message: 'La denominación de la línea debe ser un texto.' })
+  lineaDenominacion?: string;
+
+  @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString({ message: 'La denominación de la SuperLínea debe ser un texto.' })
+  superLineaDenominacion?: string;
+
+  @IsOptional()
   @IsString()
   codigoProveedor: string;
  

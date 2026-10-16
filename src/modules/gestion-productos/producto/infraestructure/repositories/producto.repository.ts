@@ -81,6 +81,8 @@ export class ProductoRepository implements IProductoRepository {
     conStock: boolean,
     skip: number,
     take: number,
+    lineaDenominacion?: string,
+    superLineaDenominacion?: string,
   ): Promise<{ data: Producto[]; total: number }> {
     return this.persistenceService.findBy(
       denominacion,
@@ -93,6 +95,8 @@ export class ProductoRepository implements IProductoRepository {
       conStock,
       skip,
       take,
+      lineaDenominacion,
+      superLineaDenominacion,
     );
   }
 
