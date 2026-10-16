@@ -12,10 +12,12 @@ import { LineaController } from './application/controllers/linea.controller';
 import { LineaService } from './application/services/linea.service';
 import { ProductoModule } from '../producto/producto.module';
 import { PoliticaEliminacionLinea } from './domain/services/politica-eliminacion-linea.service';
+import { SuperLinea } from '../super-linea/domain/entities/super-linea.entity';
+import { LineaSuperLineaValidator } from './infraestructure/validators/linea-super-linea.validator';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Linea]),
+    TypeOrmModule.forFeature([Linea, SuperLinea]),
     forwardRef(() => ProductoModule),
     UsuarioModule,
   ],
@@ -23,6 +25,7 @@ import { PoliticaEliminacionLinea } from './domain/services/politica-eliminacion
   providers: [
     LineaService,
     PoliticaEliminacionLinea,
+    LineaSuperLineaValidator,
     {
       provide: 'ILineaRepository',
       useClass: LineaRepository,

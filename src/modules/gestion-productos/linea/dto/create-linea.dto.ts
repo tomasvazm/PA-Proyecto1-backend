@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsInt,
   IsBoolean,
+  Min,
 } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
@@ -31,6 +32,14 @@ export class CreateLineaDto {
   @IsOptional()
   @IsString()
   observacion?: string;
+
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === null || value === undefined ? value : Number(value),
+  )
+  @IsInt({ message: 'La SuperLínea debe ser un identificador entero válido.' })
+  @Min(1, { message: 'La SuperLínea debe ser un identificador positivo.' })
+  superLineaId?: number | null;
 
   createdAt?: Date;
 

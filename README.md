@@ -227,6 +227,12 @@ Las unidades permitidas son `ML`, `L`, `G`, `KG` y `UNIDADES`. La cantidad debe 
 
 Antes de desplegar una versión que incluya este cambio, ejecutar `yarn migration:run` contra la base de datos destino para agregar las columnas de presentación.
 
+### SuperLíneas
+
+Una Línea puede asociarse a una SuperLínea existente al crearla o editarla mediante `superLineaId`. El campo es opcional; enviarlo como `null` en una actualización desvincula la Línea. Las Líneas ya existentes quedan sin SuperLínea. La administración de SuperLíneas está disponible bajo `/api/super-linea`; no se puede eliminar una SuperLínea mientras tenga Líneas activas asociadas.
+
+Antes de desplegar esta funcionalidad, ejecutar `yarn migration:run` contra la base de datos destino para crear `super_linea` y agregar la relación nullable a `linea`.
+
 ## Seeds
 
 Los seeds insertan datos iniciales, como roles, el usuario administrador, provincias y datos de productos. No se ejecutan automáticamente al iniciar la aplicación.

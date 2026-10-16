@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class LineaDto {
   @ApiProperty({ example: 123, description: 'ID del la linea' })
@@ -36,6 +37,15 @@ export class LineaDto {
   })
   @IsString()
   observacion: string;
+
+  @ApiPropertyOptional({
+    example: 12,
+    description: 'SuperLínea asociada; null si la Línea no pertenece a una.',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsInt()
+  superLineaId: number | null;
 
   @ApiProperty({
     example: 1,

@@ -7,6 +7,7 @@ import { DatabaseConnectionException } from 'src/modules/common/exceptions/datab
 import { Usuario } from 'src/modules/gestion-usuario/usuario/domain/entities/usuario.entity';
 import { AuditoriaDto } from 'src/modules/gestion-sistema/auditoria/dto/auditoria.dto';
 import { LineaPersistenceAdapter } from './linea.persistence-adapter';
+import { SuperLinea } from 'src/modules/gestion-productos/super-linea/domain/entities/super-linea.entity';
 
 @Injectable()
 export class LineaRepository implements ILineaRepository {
@@ -16,10 +17,13 @@ export class LineaRepository implements ILineaRepository {
 
   private readonly ENTITY_NAME = 'Linea';
 
-  async create(data: CreateLineaDto): Promise<Linea> {
+  async create(
+    data: CreateLineaDto,
+    superLinea: SuperLinea | null,
+  ): Promise<Linea> {
     this.logger.log(`Creando un nuevo `);
     try {
-      return await this.persistenceService.create(data);
+      return await this.persistenceService.create(data, superLinea);
     } catch (error) {
 
       throw new DatabaseConnectionException(
@@ -31,8 +35,9 @@ export class LineaRepository implements ILineaRepository {
   async update(
     id: number,
     data: UpdateLineaDto,
+    superLinea: SuperLinea | null,
   ): Promise<Linea> {
-    return this.persistenceService.update(id, data);
+    return this.persistenceService.update(id, data, superLinea);
   }
 
   async findByDenominacionFiltered(

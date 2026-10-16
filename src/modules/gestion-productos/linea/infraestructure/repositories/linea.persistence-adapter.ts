@@ -15,6 +15,7 @@ import { FechaUtils } from 'src/modules/common/utils/date/fecha-utils';
 import { QueryBuilderHelper } from 'src/modules/common/query-builders/query-builder-helpers';
 import { BasePersistenceAdapter } from 'src/modules/common/persistence/base-persistence.adapter';
 import { handleDatabaseError } from 'src/modules/common/query-builders/database-error.helper';
+import { SuperLinea } from 'src/modules/gestion-productos/super-linea/domain/entities/super-linea.entity';
 
 @Injectable()
 export class LineaPersistenceAdapter
@@ -36,7 +37,10 @@ export class LineaPersistenceAdapter
   }
 
   @Transactional()
-  async create(data: CreateLineaDto): Promise<Linea> {
+  async create(
+    data: CreateLineaDto,
+    superLinea: SuperLinea | null,
+  ): Promise<Linea> {
     const repo = this.uow.getRepository(Linea);
 
     try {
@@ -47,6 +51,7 @@ export class LineaPersistenceAdapter
         stockMinimo: data.stockMinimo,
         usuarioCreatedId: data.usuarioCreatedId,
         observacion: data.observacion,
+        superLinea,
       });
 
       const entityGuardada = await repo.save(nuevaEntity);
@@ -65,6 +70,7 @@ export class LineaPersistenceAdapter
   async update(
     id: number,
     data: UpdateLineaDto,
+    superLinea: SuperLinea | null,
   ): Promise<Linea> {
     const repo = this.uow.getRepository(Linea);
 
@@ -80,7 +86,8 @@ export class LineaPersistenceAdapter
     entity.denominacion = data.denominacion ?? entity.denominacion;
     entity.utilizaStockMinimo = data.utilizaStockMinimo;
     entity.stockMinimo = data.stockMinimo ?? 0;
-    entity.usuarioCreatedId = data.usuarioCreatedId;
+    entity.usuarioUpdatedId = data.usuarioUpdatedId;
+    entity.superLinea = superLinea;
 
     // Guardar entidad antes de procesar sublíneas (opcional según lógica de negocio)
     const entityActualizada = await repo.save(entity);
@@ -92,6 +99,7 @@ export class LineaPersistenceAdapter
     try {
       const entity = await this.repository
         .createQueryBuilder('linea')
+        .leftJoinAndSelect('linea.superLinea', 'superLinea')
         .where('linea.id = :id', { id })
         .andWhere('linea.deletedAt IS NULL')
         .getOne();
