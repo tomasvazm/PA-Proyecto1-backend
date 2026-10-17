@@ -11,6 +11,7 @@ import { IUnitOfWork } from 'src/modules/common/unit-of-work/iunit-of-work.';
 import { Usuario } from 'src/modules/gestion-usuario/usuario/domain/entities/usuario.entity';
 import { UpdatePrecioDto } from '../../dto/update-precio.dto';
 import { HistorialPrecio } from '../../domain/entities/historial-precio.entity';
+import { ActualizacionMasivaPrecioDto } from '../../dto/actualizacion-masiva-precio.dto';
 
 @Injectable()
 export class ProductoRepository implements IProductoRepository {
@@ -68,6 +69,16 @@ export class ProductoRepository implements IProductoRepository {
 
   async updateEntity(uow: IUnitOfWork, data: Producto): Promise<Producto> {
     return this.persistenceService.updateEntity(uow, data);
+  }
+
+  async actualizarPreciosMasivamente(
+    dto: ActualizacionMasivaPrecioDto,
+    usuario: Usuario,
+  ): Promise<{
+    productosEvaluados: number;
+    productosActualizados: number;
+  }> {
+    return this.persistenceService.actualizarPreciosMasivamente(dto, usuario);
   }
 
 

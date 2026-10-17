@@ -17,8 +17,11 @@ import { Usuario } from 'src/modules/gestion-usuario/usuario/domain/entities/usu
 import { Repository, IsNull, DataSource } from 'typeorm';
 import { Producto } from '../../domain/entities/producto.entity';
 import { HistorialPrecio } from '../../domain/entities/historial-precio.entity';
+import { AlcanceAjustePrecio } from '../../domain/enums/alcance-ajuste-precio.enum';
+import { ProductoAjustePrecioService } from '../../domain/services/producto-ajuste-precio.service';
 import { IProductoRepository } from '../../domain/interfaces/producto.repository-interface';
 import { CreateProductoDto } from '../../dto/create-producto.dto';
+import { ActualizacionMasivaPrecioDto } from '../../dto/actualizacion-masiva-precio.dto';
 import { UpdatePrecioDto } from '../../dto/update-precio.dto';
 import { UpdateProductoDto } from '../../dto/update-producto.dto';
 import { ProductoMapper } from '../../mappers/producto.mapper';
@@ -35,6 +38,7 @@ export class ProductoPersistenceAdapter implements IProductoRepository {
     private readonly repository: Repository<Producto>,
     private readonly dataSource: DataSource,
     @Inject('UnitOfWork') public readonly uow: IUnitOfWork,
+    private readonly productoAjustePrecioService: ProductoAjustePrecioService,
   ) { }
 
 
@@ -240,6 +244,88 @@ export class ProductoPersistenceAdapter implements IProductoRepository {
 
   private normalizarPrecio(precio: number): number {
     return Number(precio.toFixed(5));
+  }
+
+  @Transactional()
+  async actualizarPreciosMasivamente(
+    dto: ActualizacionMasivaPrecioDto,
+    usuario: Usuario,
+  ): Promise<{
+    productosEvaluados: number;
+    productosActualizados: number;
+  }> {
+    if (
+      dto.alcance === AlcanceAjustePrecio.GLOBAL &&
+      dto.lineaId !== undefined
+    ) {
+      throw new BadRequestException(
+        'No se debe indicar una Línea cuando el alcance es GLOBAL.',
+      );
+    }
+
+    const productoRepository = this.uow.getRepository(Producto);
+    const query = productoRepository
+      .createQueryBuilder('producto')
+      .where('producto.deletedAt IS NULL');
+
+    if (dto.alcance === AlcanceAjustePrecio.LINEA) {
+      if (dto.lineaId === undefined) {
+        throw new BadRequestException(
+          'Debe indicar una Línea cuando el alcance es LINEA.',
+        );
+      }
+      query
+        .innerJoin('producto.linea', 'linea')
+        .andWhere('linea.id = :lineaId', { lineaId: dto.lineaId });
+    }
+
+    const productos = await query
+      .setLock('pessimistic_write')
+      .getMany();
+    const cambios: Array<{
+      producto: Producto;
+      historial: HistorialPrecio;
+    }> = [];
+
+    for (const producto of productos) {
+      const precioAnterior = this.normalizarPrecio(
+        Number(producto.precio ?? 0),
+      );
+      const precioNuevo =
+        this.productoAjustePrecioService.calcularNuevoPrecio(
+          precioAnterior,
+          dto.tipoAjuste,
+          dto.valor,
+          producto.id,
+        );
+
+      if (precioNuevo === precioAnterior) {
+        continue;
+      }
+
+      const historial = HistorialPrecio.registrarCambio(
+        producto,
+        precioAnterior,
+        precioNuevo,
+        dto.motivoCambioPrecio,
+        usuario,
+      );
+      producto.precio = precioNuevo;
+      producto.usuarioUpdated = usuario;
+      cambios.push({ producto, historial });
+    }
+
+    if (cambios.length > 0) {
+      await productoRepository.save(cambios.map(({ producto }) => producto));
+      await this.uow
+        .getRepository(HistorialPrecio)
+        .save(cambios.map(({ historial }) => historial));
+    }
+
+    return {
+      productosEvaluados: productos.length,
+      productosActualizados: cambios.length,
+    };
   }
 
 

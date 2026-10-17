@@ -247,6 +247,12 @@ El historial puede consultarse mediante `GET /api/producto/:id/historial-precios
 
 Antes de desplegar esta funcionalidad, ejecutar `yarn migration:run` contra la base de datos destino para crear `historial_precio`.
 
+### Actualización masiva de precios
+
+`PATCH /api/producto/precios/actualizacion-masiva` permite ajustar productos activos por `PORCENTAJE` o `MONTO`, con alcance explícito `GLOBAL` o `LINEA`. El cuerpo incluye `tipoAjuste`, `valor`, `alcance`, `lineaId` cuando el alcance es `LINEA`, `motivoCambioPrecio` y `usuarioUpdatedId`. Los valores negativos reducen los precios. El cálculo se redondea a cinco decimales, de acuerdo con `Producto.precio`.
+
+La ruta requiere rol `Root` o `Administrador`. Si el precio calculado de cualquier producto queda en cero, es negativo o excede el límite de almacenamiento, se rechaza el lote completo. Los precios sin cambio efectivo no generan historial. Cada cambio se guarda junto con su evento CR7 en una única transacción.
+
 ### Búsqueda avanzada de productos
 
 `GET /api/producto/search-by` admite los filtros opcionales `denominacion`, `lineaDenominacion` y `superLineaDenominacion`. Permiten coincidencias parciales e ignoran mayúsculas/minúsculas. Denominación, Línea y SuperLínea se combinan con AND; por ejemplo, `?denominacion=agua&superLineaDenominacion=bebidas` busca productos cuya denominación contenga «agua» y cuya SuperLínea contenga «bebidas». Los filtros por `lineaId` y `marcaId` continúan siendo exactos. Se conserva la lógica existente de los filtros por códigos, que se combinan entre sí y con la denominación mediante OR.

@@ -7,6 +7,7 @@ import { IUnitOfWork } from 'src/modules/common/unit-of-work/iunit-of-work.';
 import { Usuario } from 'src/modules/gestion-usuario/usuario/domain/entities/usuario.entity';
 import { UpdatePrecioDto } from '../../dto/update-precio.dto';
 import { HistorialPrecio } from '../entities/historial-precio.entity';
+import { ActualizacionMasivaPrecioDto } from '../../dto/actualizacion-masiva-precio.dto';
 
 export interface IProductoRepository {
 
@@ -56,6 +57,14 @@ export interface IProductoRepository {
   ): Promise<Producto>;
 
   updateEntity(uow: IUnitOfWork, data: Producto): Promise<Producto>;
+
+  actualizarPreciosMasivamente(
+    dto: ActualizacionMasivaPrecioDto,
+    usuario: Usuario,
+  ): Promise<{
+    productosEvaluados: number;
+    productosActualizados: number;
+  }>;
 
   actualizarPrecio(
     id: number,

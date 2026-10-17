@@ -31,6 +31,9 @@ import { ProductoDeletePolicy } from '../policies/producto-delete.policy';
 import { ModoDenominacion } from '../../domain/enums/modo-denominacion.enum';
 import { ProductoDenominacionService } from '../../domain/services/producto-denominacion.service';
 import { HistorialPrecioDto } from '../../dto/historial-precio.dto';
+import { ActualizacionMasivaPrecioDto } from '../../dto/actualizacion-masiva-precio.dto';
+import { ResultadoActualizacionMasivaPrecioDto } from '../../dto/resultado-actualizacion-masiva-precio.dto';
+import { AlcanceAjustePrecio } from '../../domain/enums/alcance-ajuste-precio.enum';
 @Injectable()
 export class ProductoService {
   private readonly logger = new Logger(ProductoService.name);
@@ -106,6 +109,45 @@ export class ProductoService {
       entity.denominacion,
       'editada',
     );
+  }
+
+  async actualizarPreciosMasivamente(
+    dto: ActualizacionMasivaPrecioDto,
+  ): Promise<ResultadoActualizacionMasivaPrecioDto> {
+    if (
+      dto.alcance === AlcanceAjustePrecio.GLOBAL &&
+      dto.lineaId !== undefined
+    ) {
+      throw new BadRequestException(
+        'No se debe indicar una Línea cuando el alcance es GLOBAL.',
+      );
+    }
+
+    if (dto.alcance === AlcanceAjustePrecio.LINEA) {
+      if (dto.lineaId === undefined) {
+        throw new BadRequestException(
+          'Debe indicar una Línea cuando el alcance es LINEA.',
+        );
+      }
+      await this.lineaService.findEntityById(dto.lineaId);
+    }
+
+    const usuario = await this.usuarioValidator.validarUsuarioExiste(
+      dto.usuarioUpdatedId,
+    );
+    const resultado =
+      await this.repository.actualizarPreciosMasivamente(dto, usuario);
+
+    return {
+      tipoAjuste: dto.tipoAjuste,
+      valor: dto.valor,
+      alcance: dto.alcance,
+      lineaId: dto.lineaId,
+      productosEvaluados: resultado.productosEvaluados,
+      productosActualizados: resultado.productosActualizados,
+      productosSinCambios:
+        resultado.productosEvaluados - resultado.productosActualizados,
+    };
   }
 
   async findByRapido(

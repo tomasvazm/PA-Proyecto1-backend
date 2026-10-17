@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Put,
   Query,
+  Patch,
   UsePipes,
   UseGuards,
 } from '@nestjs/common';
@@ -32,6 +33,8 @@ import { DenominacionBusquedaDto } from 'src/modules/common/dto/denominacion-bus
 import { SearchProductoRapidoDto } from '../../dto/search-producto-rapido.dto';
 import { ProductoService } from '../services/producto.service';
 import { HistorialPrecioDto } from '../../dto/historial-precio.dto';
+import { ActualizacionMasivaPrecioDto } from '../../dto/actualizacion-masiva-precio.dto';
+import { ResultadoActualizacionMasivaPrecioDto } from '../../dto/resultado-actualizacion-masiva-precio.dto';
 
 
 @ApiTags('Gestion Productos')
@@ -50,6 +53,15 @@ export class ProductoController {
   create(@Body() createDto: CreateProductoDto) {
     this.logger.log(`Creando un nuevo ${this.ENTITY_NAME}...`);
     return this.service.create(createDto);
+  }
+
+  @Patch('precios/actualizacion-masiva')
+  @Roles('Root', 'Administrador')
+  @ApiOkResponse({ type: ResultadoActualizacionMasivaPrecioDto })
+  actualizarPreciosMasivamente(
+    @Body() dto: ActualizacionMasivaPrecioDto,
+  ): Promise<ResultadoActualizacionMasivaPrecioDto> {
+    return this.service.actualizarPreciosMasivamente(dto);
   }
   
   @Get('find-all-for-marcas/select')

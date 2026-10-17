@@ -21,6 +21,7 @@ import { ProductoValidationService } from './domain/services/producto-validation
 import { ProductoIntrinsicValidationService } from './domain/services/producto-intrinsic-validation.service.ts';
 import { ProductoDeletePolicy } from './application/policies/producto-delete.policy';
 import { ProductoDenominacionService } from './domain/services/producto-denominacion.service';
+import { ProductoAjustePrecioService } from './domain/services/producto-ajuste-precio.service';
 
 
 @Module({
@@ -39,6 +40,7 @@ import { ProductoDenominacionService } from './domain/services/producto-denomina
     ProductoService,
     ProductoIntrinsicValidationService,
     ProductoDenominacionService,
+    ProductoAjustePrecioService,
     ProductoValidationService,
     ProductoRelatedEntitiesValidator,
     ProductoUniquenessValidator,
