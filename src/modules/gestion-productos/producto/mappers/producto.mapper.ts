@@ -5,6 +5,8 @@ import { UpdatePrecioDto } from '../dto/update-precio.dto';
 import { Usuario } from 'src/modules/gestion-usuario/usuario/domain/entities/usuario.entity';
 import { ProductoDto } from '../dto/producto.dto';
 import { PresentacionDto } from '../dto/presentacion.dto';
+import { HistorialPrecio } from '../domain/entities/historial-precio.entity';
+import { HistorialPrecioDto } from '../dto/historial-precio.dto';
 
 import {
   toReferenciaDto,
@@ -64,6 +66,22 @@ export class ProductoMapper {
     entity.fechaCosto = new Date();
 
     entity.usuarioUpdated = usuario;
+  }
+
+  static toHistorialPrecioDto(
+    entity: HistorialPrecio,
+  ): HistorialPrecioDto {
+    return {
+      id: entity.id,
+      precioAnterior: entity.precioAnterior,
+      precioNuevo: entity.precioNuevo,
+      fechaCambio: entity.fechaCambio,
+      motivo: entity.motivo,
+      usuario: {
+        id: entity.usuario.id,
+        denominacion: entity.usuario.denominacion,
+      },
+    };
   }
 
 

@@ -6,6 +6,7 @@ import { UpdateProductoDto } from '../../dto/update-producto.dto';
 import { IUnitOfWork } from 'src/modules/common/unit-of-work/iunit-of-work.';
 import { Usuario } from 'src/modules/gestion-usuario/usuario/domain/entities/usuario.entity';
 import { UpdatePrecioDto } from '../../dto/update-precio.dto';
+import { HistorialPrecio } from '../entities/historial-precio.entity';
 
 export interface IProductoRepository {
 
@@ -17,6 +18,7 @@ export interface IProductoRepository {
   ): Promise<Producto>;
 
   findOne(id: number): Promise<Producto | null>;
+  findHistorialPrecio(productoId: number): Promise<HistorialPrecio[]>;
   findByIdConAuditoria(id: number): Promise<Producto | null>;
   findByDenominacion(denominacion: string): Promise<Producto | null>;
 

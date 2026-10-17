@@ -31,6 +31,7 @@ import { NormalizeDenominacionSearchPipe } from 'src/modules/common/pipes/normal
 import { DenominacionBusquedaDto } from 'src/modules/common/dto/denominacion-busqueda.dto';
 import { SearchProductoRapidoDto } from '../../dto/search-producto-rapido.dto';
 import { ProductoService } from '../services/producto.service';
+import { HistorialPrecioDto } from '../../dto/historial-precio.dto';
 
 
 @ApiTags('Gestion Productos')
@@ -136,6 +137,15 @@ export class ProductoController {
       lineaDenominacion,
       superLineaDenominacion,
     );
+  }
+
+  @Get(':id/historial-precios')
+  @Roles('Root', 'Administrador', 'Empleado')
+  @ApiOkResponse({ type: HistorialPrecioDto, isArray: true })
+  async findHistorialPrecio(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<HistorialPrecioDto[]> {
+    return this.service.findHistorialPrecio(id);
   }
 
   @Get('marca/:id')

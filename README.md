@@ -239,6 +239,14 @@ Las altas nuevas usan `modoDenominacion: "AUTOMATICA"` si se omite el modo y gen
 
 Antes de desplegar esta funcionalidad, ejecutar `yarn migration:run` contra la base de datos destino para agregar `modoDenominacion`; los registros existentes reciben el valor `MANUAL`.
 
+### Historial de precios
+
+El precio vigente continúa guardándose en `Producto.precio`. Al modificarlo a un valor distinto, `PUT /api/producto/:id` requiere `motivoCambioPrecio` y registra el precio anterior, el nuevo, la fecha del servidor, el usuario responsable y el motivo en `historial_precio`, dentro de la misma transacción que actualiza el producto. No se crea un registro al dar de alta un producto ni al guardar el mismo precio. El precio debe ser mayor que cero y el motivo admite hasta 500 caracteres.
+
+El historial puede consultarse mediante `GET /api/producto/:id/historial-precios`. Los registros existentes no se pueden reconstruir; el historial comienza a acumularse después de aplicar la migración.
+
+Antes de desplegar esta funcionalidad, ejecutar `yarn migration:run` contra la base de datos destino para crear `historial_precio`.
+
 ### Búsqueda avanzada de productos
 
 `GET /api/producto/search-by` admite los filtros opcionales `denominacion`, `lineaDenominacion` y `superLineaDenominacion`. Permiten coincidencias parciales e ignoran mayúsculas/minúsculas. Denominación, Línea y SuperLínea se combinan con AND; por ejemplo, `?denominacion=agua&superLineaDenominacion=bebidas` busca productos cuya denominación contenga «agua» y cuya SuperLínea contenga «bebidas». Los filtros por `lineaId` y `marcaId` continúan siendo exactos. Se conserva la lógica existente de los filtros por códigos, que se combinan entre sí y con la denominación mediante OR.

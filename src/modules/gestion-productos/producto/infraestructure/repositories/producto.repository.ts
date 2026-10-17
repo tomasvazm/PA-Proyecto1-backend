@@ -10,6 +10,7 @@ import { DatabaseConnectionException } from 'src/modules/common/exceptions/datab
 import { IUnitOfWork } from 'src/modules/common/unit-of-work/iunit-of-work.';
 import { Usuario } from 'src/modules/gestion-usuario/usuario/domain/entities/usuario.entity';
 import { UpdatePrecioDto } from '../../dto/update-precio.dto';
+import { HistorialPrecio } from '../../domain/entities/historial-precio.entity';
 
 @Injectable()
 export class ProductoRepository implements IProductoRepository {
@@ -114,6 +115,10 @@ export class ProductoRepository implements IProductoRepository {
   async findOne(id: number): Promise<Producto | null> {
     const entity = await this.persistenceService.findOne(id);
     return entity;
+  }
+
+  async findHistorialPrecio(productoId: number): Promise<HistorialPrecio[]> {
+    return this.persistenceService.findHistorialPrecio(productoId);
   }
 
   async findByIdConAuditoria(id: number): Promise<Producto | null> {

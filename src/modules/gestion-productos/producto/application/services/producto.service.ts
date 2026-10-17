@@ -30,6 +30,7 @@ import { UsuarioValidator } from 'src/modules/common/utils/validation/usuario-va
 import { ProductoDeletePolicy } from '../policies/producto-delete.policy';
 import { ModoDenominacion } from '../../domain/enums/modo-denominacion.enum';
 import { ProductoDenominacionService } from '../../domain/services/producto-denominacion.service';
+import { HistorialPrecioDto } from '../../dto/historial-precio.dto';
 @Injectable()
 export class ProductoService {
   private readonly logger = new Logger(ProductoService.name);
@@ -192,6 +193,20 @@ export class ProductoService {
       );
     this.logger.log(`b1x`);
     return ProductoMapper.toDto(entity);
+  }
+
+  async findHistorialPrecio(id: number): Promise<HistorialPrecioDto[]> {
+    const producto = await this.repository.findOne(id);
+    if (!producto) {
+      throw new NotFoundException(
+        `${this.ENTITY_NAME} con ID ${id} no encontrado.`,
+      );
+    }
+
+    const historial = await this.repository.findHistorialPrecio(id);
+    return historial.map((registro) =>
+      ProductoMapper.toHistorialPrecioDto(registro),
+    );
   }
 
   async findEntityById(id: number) {
@@ -448,7 +463,8 @@ export class ProductoService {
       marcaId,
       lineaId,
       alicuotaIva: dto.alicuotaIva ?? productoActual.alicuotaIva,
-      precio: dto.precio ?? productoActual.precio,
+      precio:
+        dto.precio === undefined ? productoActual.precio : dto.precio,
       stock: dto.stock ?? productoActual.stock,
       stockMinimo: dto.stockMinimo ?? productoActual.stockMinimo,
       utilizaPack: dto.utilizaPack ?? productoActual.utilizaPack,
