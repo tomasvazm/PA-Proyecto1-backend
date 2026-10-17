@@ -14,16 +14,39 @@ import {
   IsDefined,
   ValidateNested,
   ValidateIf,
+  Validate,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from 'class-validator';
 import { AlicuotaIva } from 'src/modules/organizacion/enums/alicuota-iva.enum';
 import { PresentacionDto } from './presentacion.dto';
 import { ModoDenominacion } from '../domain/enums/modo-denominacion.enum';
 
+@ValidatorConstraint({ name: 'manualDenominacionRequired', async: false })
+class ManualDenominacionRequiredConstraint
+  implements ValidatorConstraintInterface
+{
+  validate(value: unknown, args: ValidationArguments): boolean {
+    const producto = args.object as { denominacion?: unknown };
+    return (
+      value !== ModoDenominacion.MANUAL ||
+      (typeof producto.denominacion === 'string' &&
+        producto.denominacion.trim().length > 0)
+    );
+  }
+
+  defaultMessage(): string {
+    return 'La denominación es obligatoria en modo manual.';
+  }
+}
+
 export class CreateProductoDto {
   @ValidateIf(
     (producto: CreateProductoDto) =>
-      producto.modoDenominacion === ModoDenominacion.MANUAL ||
-      producto.denominacion !== undefined,
+      producto.denominacion !== undefined &&
+      (typeof producto.denominacion !== 'string' ||
+        producto.denominacion.trim().length > 0),
   )
   @Transform(({ value }) =>
     typeof value === 'string' ? value.trim().toLowerCase() : value,
@@ -48,6 +71,7 @@ export class CreateProductoDto {
   @IsEnum(ModoDenominacion, {
     message: 'El modo de denominación debe ser AUTOMATICA o MANUAL.',
   })
+  @Validate(ManualDenominacionRequiredConstraint)
   modoDenominacion?: ModoDenominacion;
 
   @IsOptional()
